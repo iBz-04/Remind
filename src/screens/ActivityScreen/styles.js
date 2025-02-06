@@ -157,8 +157,9 @@ export default StyleSheet.create({
         borderColor: '#eee',
     },
     studiedDay: {
-        backgroundColor: '#4CAF50',
+        backgroundColor: '#e8f5e9',
         borderColor: '#4CAF50',
+        borderWidth: 1,
     },
     today: {
         borderColor: '#5b6af5',
@@ -173,7 +174,8 @@ export default StyleSheet.create({
         fontWeight: '500',
     },
     studiedDayText: {
-        color: '#fff',
+        color: '#4CAF50',
+        fontWeight: '600',
     },
     todayText: {
         color: '#5b6af5',
@@ -183,6 +185,7 @@ export default StyleSheet.create({
         position: 'absolute',
         bottom: 4,
         right: 4,
+        color: '#4CAF50',
     },
     statsContainer: {
         flexDirection: 'row',
@@ -193,21 +196,29 @@ export default StyleSheet.create({
     statCard: {
         backgroundColor: '#fff',
         borderRadius: 16,
-        padding: 16,
+        padding: 20,
         alignItems: 'center',
         flex: 1,
-        marginHorizontal: 6,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
     },
     statNumber: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: '700',
         color: '#333',
         marginTop: 8,
     },
     statLabel: {
-        fontSize: 12,
+        fontSize: 14,
         color: '#666',
         marginTop: 4,
+        fontWeight: '500',
     },
     motivationalContainer: {
         backgroundColor: '#f0f3ff',

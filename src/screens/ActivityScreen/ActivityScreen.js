@@ -13,10 +13,16 @@ export default function ActivityScreen(props) {
     const [currentYear] = useState(new Date().getFullYear());
     const [streakCount, setStreakCount] = useState(0);
     const [totalStudyDays, setTotalStudyDays] = useState(0);
-    const [monthlyProgress, setMonthlyProgress] = useState(0);
 
     useEffect(() => {
         fetchStudyActivity();
+        
+        // Add navigation listener to refresh data when screen is focused
+        const unsubscribe = props.navigation.addListener('focus', () => {
+            fetchStudyActivity();
+        });
+
+        return unsubscribe;
     }, []);
 
     const calculateStreak = (studyDaysMap) => {
@@ -24,22 +30,13 @@ export default function ActivityScreen(props) {
         let currentDate = new Date();
         currentDate.setHours(0, 0, 0, 0);
 
+        // Start counting from today
         while (studyDaysMap[currentDate.toISOString().split('T')[0]]) {
             streak++;
             currentDate.setDate(currentDate.getDate() - 1);
         }
+        
         return streak;
-    };
-
-    const calculateMonthlyProgress = (studyDaysMap) => {
-        const today = new Date();
-        const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-        const studyDaysThisMonth = Object.keys(studyDaysMap).filter(date => {
-            const dateObj = new Date(date);
-            return dateObj.getMonth() === today.getMonth() && 
-                   dateObj.getFullYear() === today.getFullYear();
-        }).length;
-        return Math.round((studyDaysThisMonth / daysInMonth) * 100);
     };
 
     const fetchStudyActivity = async () => {
@@ -55,27 +52,26 @@ export default function ActivityScreen(props) {
             
             querySnapshot.forEach(doc => {
                 const reminder = doc.data();
-                if (reminder.reminderTime) {
-                    let date;
-                    if (reminder.reminderTime.toDate) {
-                        date = reminder.reminderTime.toDate();
-                    } else if (reminder.reminderTime.seconds) {
-                        date = new Date(reminder.reminderTime.seconds * 1000);
-                    } else {
-                        return;
-                    }
-                    
-                    const dateKey = date.toISOString().split('T')[0];
-                    studyDaysMap[dateKey] = true;
+                if (reminder.completed && reminder.completedAt) {  // Only count completed reminders with completedAt
+                    const completionDate = new Date(reminder.completedAt);
+                    const dateString = completionDate.toISOString().split('T')[0];
+                    studyDaysMap[dateString] = true;
                 }
             });
             
+            // Also mark today as a study day since user opened the app
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            studyDaysMap[todayString] = true;
+            
+            const streak = calculateStreak(studyDaysMap);
+            const total = Object.keys(studyDaysMap).length;
+            
+            setStreakCount(streak);
+            setTotalStudyDays(total);
             setStudyDays(studyDaysMap);
-            setStreakCount(calculateStreak(studyDaysMap));
-            setTotalStudyDays(Object.keys(studyDaysMap).length);
-            setMonthlyProgress(calculateMonthlyProgress(studyDaysMap));
         } catch (error) {
-            console.error("Error fetching study activity:", error);
+            console.error("Error fetching activity:", error);
         }
     };
 
@@ -108,7 +104,7 @@ export default function ActivityScreen(props) {
                     <MaterialIcons 
                         name="check-circle" 
                         size={16} 
-                        color="#fff" 
+                        color="#4CAF50" 
                         style={styles.checkIcon}
                     />
                 )}
@@ -116,27 +112,22 @@ export default function ActivityScreen(props) {
         );
     };
 
-    const renderStats = () => (
-        <View style={styles.statsContainer}>
-            <View style={styles.statCard}>
-                <MaterialIcons name="local-fire-department" size={24} color="#ff9800" />
-                <Text style={styles.statNumber}>{streakCount}</Text>
-                <Text style={styles.statLabel}>Day Streak</Text>
+    const renderStats = () => {
+        return (
+            <View style={styles.statsContainer}>
+                <View style={[styles.statCard, { marginRight: 12 }]}>
+                    <MaterialIcons name="local-fire-department" size={24} color="#ff6b6b" />
+                    <Text style={styles.statNumber}>{streakCount}</Text>
+                    <Text style={styles.statLabel}>Day Streak</Text>
+                </View>
+                <View style={styles.statCard}>
+                    <MaterialIcons name="calendar-today" size={24} color="#5b6af5" />
+                    <Text style={styles.statNumber}>{totalStudyDays}</Text>
+                    <Text style={styles.statLabel}>Total Study Days</Text>
+                </View>
             </View>
-            
-            <View style={styles.statCard}>
-                <MaterialIcons name="calendar-today" size={24} color="#4CAF50" />
-                <Text style={styles.statNumber}>{totalStudyDays}</Text>
-                <Text style={styles.statLabel}>Total Study Days</Text>
-            </View>
-            
-            <View style={styles.statCard}>
-                <MaterialIcons name="trending-up" size={24} color="#5b6af5" />
-                <Text style={styles.statNumber}>{monthlyProgress}%</Text>
-                <Text style={styles.statLabel}>Monthly Goal</Text>
-            </View>
-        </View>
-    );
+        );
+    };
 
     const renderMotivationalMessage = () => {
         let message = "";
@@ -168,7 +159,9 @@ export default function ActivityScreen(props) {
     };
 
     const navigateToHome = () => {
-        props.navigation.navigate('Home');
+        if (props.navigation) {
+            props.navigation.navigate('Home');
+        }
     };
 
     return (
@@ -216,7 +209,7 @@ export default function ActivityScreen(props) {
 
                     <TouchableOpacity 
                         style={styles.sidebarItem}
-                        onPress={() => props.navigation.navigate('Reminders')}
+                        onPress={() => props.navigation && props.navigation.navigate('Reminders')}
                     >
                         <MaterialIcons name="notifications" size={24} color="#5b6af5" />
                         <Text style={styles.sidebarItemText}>Reminders</Text>

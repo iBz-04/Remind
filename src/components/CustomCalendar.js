@@ -20,48 +20,55 @@ const CustomCalendar = ({ onDateSelect, selectedDate }) => {
 
     const renderCalendarDays = () => {
         const daysInMonth = getDaysInMonth(currentMonth, currentYear);
-        const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
-        const days = [];
-        
-        // Add empty spaces for days before the first day of the month
-        for (let i = 0; i < firstDay; i++) {
-            days.push(<View key={`empty-${i}`} style={styles.dayCell} />);
-        }
+        const firstDayOfMonth = getFirstDayOfMonth(currentMonth, currentYear);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
 
-        // Add the days of the month
+        const calendarDays = [];
+        // Add empty slots for the leading days of the week.
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            calendarDays.push(<View key={`empty-${i}`} style={styles.dayButton} />);
+        }
+    
+        // Create day buttons for each day in the month.
         for (let day = 1; day <= daysInMonth; day++) {
             const date = new Date(currentYear, currentMonth, day);
-            const isSelected = selectedDate && 
-                date.getDate() === selectedDate.getDate() &&
-                date.getMonth() === selectedDate.getMonth();
-            const isToday = new Date().toDateString() === date.toDateString();
-            const isPast = date < new Date(new Date().setHours(0, 0, 0, 0));
-
-            days.push(
+            date.setHours(0, 0, 0, 0);
+            const isPast = date < today; // true if strictly before today
+            const isToday = date.getTime() === today.getTime();
+            const isSelected = selectedDate && (new Date(selectedDate)).getTime() === date.getTime();
+    
+            calendarDays.push(
                 <TouchableOpacity
                     key={day}
                     style={[
-                        styles.dayCell,
+                        styles.dayButton,
                         isSelected && styles.selectedDay,
-                        isToday && styles.today,
-                        isPast && styles.pastDay
+                        // Apply past style only if it's truly in the past (not today)
+                        isPast && !isToday && styles.pastDay,
+                        isToday && styles.today // extra style for today if desired
                     ]}
-                    onPress={() => !isPast && onDateSelect(date)}
-                    disabled={isPast}
+                    onPress={() => {
+                        // Allow selection if the day is today or in the future.
+                        if (!isPast || isToday) {
+                            onDateSelect(date);
+                        }
+                    }}
+                    // Disable touch if it's in the past and not today.
+                    disabled={isPast && !isToday}
                 >
                     <Text style={[
                         styles.dayText,
                         isSelected && styles.selectedDayText,
-                        isToday && styles.todayText,
-                        isPast && styles.pastDayText
+                        isPast && !isToday && styles.pastDayText,
+                        isToday && styles.todayText // optional: style current day differently
                     ]}>
                         {day}
                     </Text>
                 </TouchableOpacity>
             );
         }
-
-        return days;
+        return calendarDays;
     };
 
     return (
@@ -155,7 +162,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
     },
-    dayCell: {
+    dayButton: {
         width: 35,
         height: 35,
         justifyContent: 'center',

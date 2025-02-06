@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, Animated } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 import { db, auth } from '../../firebase/config';
 import styles from './styles';
 import LoadingModal from '../../utils/LoadingModal';
@@ -34,7 +34,8 @@ export default function RemindersScreen(props) {
         const q = query(
             remindersRef,
             where("userID", "==", userID),
-            orderBy('reminderTime', 'asc')
+            orderBy('completed', 'asc'),  // Sort by completion status first
+            orderBy('reminderTime', 'asc') // Then by time
         );
 
         const unsubscribe = onSnapshot(q,
@@ -57,68 +58,86 @@ export default function RemindersScreen(props) {
         return () => unsubscribe();
     }, []);
 
-    const renderReminder = ({ item }) => {
-        let reminderDate;
-        if (item.reminderTime) {
-            if (item.reminderTime.toDate) {
-                // Handle Firestore Timestamp
-                reminderDate = item.reminderTime.toDate();
-            } else if (item.reminderTime.seconds) {
-                // Handle seconds-based timestamp
-                reminderDate = new Date(item.reminderTime.seconds * 1000);
-            } else {
-                // Handle ISO string
-                reminderDate = new Date(item.reminderTime);
+    const handleComplete = async (reminderId) => {
+        try {
+            setLoading(true);
+            const reminderRef = doc(db, 'reminders', reminderId);
+            await updateDoc(reminderRef, {
+                completed: true,
+                completedAt: new Date().toISOString()
+            });
+            
+            // Trigger a refresh of the activity data in other screens
+            if (props.navigation) {
+                // Navigate to Activity screen to refresh the streak
+                props.navigation.navigate('Activity', { refresh: Date.now() });
+                // Navigate back to Reminders
+                props.navigation.navigate('Reminders');
             }
-        } else {
-            reminderDate = new Date(); // Fallback
+        } catch (error) {
+            console.error('Error completing reminder:', error);
+            alert('Failed to mark reminder as completed');
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const getImportanceStyle = (importance) => {
-            switch(importance) {
-                case 1:
-                    return styles.highImportance;
-                case 2:
-                    return styles.mediumImportance;
-                case 3:
-                    return styles.lowImportance;
-                default:
-                    return styles.mediumImportance;
-            }
-        };
-
-        const getImportanceLabel = (importance) => {
-            switch(importance) {
-                case 1:
-                    return 'High Priority';
-                case 2:
-                    return 'Medium Priority';
-                case 3:
-                    return 'Low Priority';
-                default:
-                    return 'Medium Priority';
-            }
-        };
-
+    const renderReminder = ({ item }) => {
+        const reminderDate = new Date(item.reminderTime);
+        
         return (
-            <View style={[styles.reminderCard, getImportanceStyle(item.importance)]}>
-                <View style={styles.reminderHeader}>
-                    <View style={styles.reminderTimeContainer}>
-                        <Text style={styles.reminderTime}>
-                            {reminderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </Text>
-                        <Text style={styles.reminderDate}>
-                            {reminderDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
-                        </Text>
+            <View style={[
+                styles.reminderCard,
+                item.importance === 3 && styles.highImportance,
+                item.importance === 2 && styles.mediumImportance,
+                item.importance === 1 && styles.lowImportance,
+                item.completed && styles.completedReminder
+            ]}>
+                <View style={styles.reminderContent}>
+                    <View style={styles.reminderHeader}>
+                        <View style={styles.timeContainer}>
+                            <Text style={styles.reminderTime}>
+                                {reminderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </Text>
+                            <Text style={styles.reminderDate}>
+                                {reminderDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                            </Text>
+                        </View>
+                        <View style={[
+                            styles.importanceBadge,
+                            item.importance === 3 && styles.highImportanceBadge,
+                            item.importance === 2 && styles.mediumImportanceBadge,
+                            item.importance === 1 && styles.lowImportanceBadge,
+                        ]}>
+                            <MaterialIcons 
+                                name={item.importance === 3 ? "priority-high" : (item.importance === 2 ? "flag" : "low-priority")} 
+                                size={16} 
+                                color="#fff" 
+                            />
+                            <Text style={styles.importanceText}>
+                                {item.importance === 3 ? 'High' : (item.importance === 2 ? 'Medium' : 'Low')}
+                            </Text>
+                        </View>
                     </View>
-                    <Text style={[
-                        styles.importanceLabel,
-                        getImportanceStyle(item.importance)
-                    ]}>
-                        {getImportanceLabel(item.importance)}
-                    </Text>
+                    
+                    <Text style={styles.reminderText}>{item.text}</Text>
+                    
+                    {item.completed ? (
+                        <View style={styles.completedStatus}>
+                            <MaterialIcons name="check-circle" size={20} color="#4CAF50" />
+                            <Text style={styles.completedText}>Completed</Text>
+                        </View>
+                    ) : (
+                        <TouchableOpacity 
+                            onPress={() => handleComplete(item.id)}
+                            style={styles.completeButton}
+                            activeOpacity={0.8}
+                        >
+                            <MaterialIcons name="check" size={20} color="#fff" />
+                            <Text style={styles.completeButtonText}>Mark as Completed</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
-                <Text style={styles.reminderText}>{item.text}</Text>
             </View>
         );
     };
@@ -157,7 +176,7 @@ export default function RemindersScreen(props) {
                 <View style={styles.sidebarContent}>
                     <TouchableOpacity 
                         style={styles.sidebarItem}
-                        onPress={() => props.navigation.navigate('Home')}
+                        onPress={() => props.navigation && props.navigation.navigate('Home')}
                     >
                         <MaterialIcons name="home" size={24} color="#5b6af5" />
                         <Text style={styles.sidebarItemText}>Home</Text>
@@ -165,7 +184,7 @@ export default function RemindersScreen(props) {
 
                     <TouchableOpacity 
                         style={styles.sidebarItem}
-                        onPress={() => props.navigation.navigate('Activity')}
+                        onPress={() => props.navigation && props.navigation.navigate('Activity')}
                     >
                         <MaterialIcons name="trending-up" size={24} color="#5b6af5" />
                         <Text style={styles.sidebarItemText}>Activity</Text>

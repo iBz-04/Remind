@@ -101,47 +101,20 @@ export default function App() {
       >
         { user ? (
           <>
-            <Stack.Screen 
-              name="Home"
-              options={{
-                headerShown: false, // This removes the default navigation header
-              }}
-            >
+            <Stack.Screen name="Home">
               {props => <HomeScreen {...props} extraData={user} />}
             </Stack.Screen>
-            <Stack.Screen 
-              name="Activity"
-              options={{
-                headerShown: false,
-              }}
-            >
+            <Stack.Screen name="Activity">
               {props => <ActivityScreen {...props} extraData={user} />}
             </Stack.Screen>
-            <Stack.Screen 
-              name="Reminders"
-              options={{
-                headerShown: false,
-              }}
-            >
+            <Stack.Screen name="Reminders">
               {props => <RemindersScreen {...props} extraData={user} />}
             </Stack.Screen>
           </>
         ) : (
           <>
-            <Stack.Screen 
-              name="Login" 
-              component={LoginScreen}
-              options={{
-                headerShown: false
-              }} 
-            />
-            <Stack.Screen 
-              name="Registration" 
-              component={RegistrationScreen}
-              options={{
-                headerShown: false
-              }} 
-            />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Registration" component={RegistrationScreen} />
           </>
         )}
       </Stack.Navigator>

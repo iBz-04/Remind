@@ -33,6 +33,7 @@ export default function HomeScreen(props) {
         const q = query(
             remindersRef,
             where("userID", "==", userID),
+            orderBy('completed', 'asc'),
             orderBy('reminderTime', 'asc')
         );
 
@@ -57,6 +58,7 @@ export default function HomeScreen(props) {
     }, []);
 
     useEffect(() => {
+        recordDailyUsage();
         fetchActivitySummary();
     }, []);
 
@@ -108,7 +110,7 @@ export default function HomeScreen(props) {
         try {
             await signOut(auth);
         } catch (error) {
-            alert(error.message);
+            console.error(error);
         }
     };
 
@@ -307,31 +309,120 @@ export default function HomeScreen(props) {
             
             querySnapshot.forEach(doc => {
                 const reminder = doc.data();
-                if (reminder.completed) {  // Only count completed reminders
-                    const reminderDate = new Date(reminder.reminderTime);
-                    const dateString = reminderDate.toISOString().split('T')[0];
+                if (reminder.completed && reminder.completedAt) {  // Only count completed reminders with completedAt
+                    const completionDate = new Date(reminder.completedAt);
+                    const dateString = completionDate.toISOString().split('T')[0];
                     studyDaysMap[dateString] = true;
                 }
             });
             
+            // Mark today since user is using the app
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            studyDaysMap[todayString] = true;
+            
             const streak = calculateStreak(studyDaysMap);
             const total = Object.keys(studyDaysMap).length;
-            const progress = calculateMonthlyProgress(studyDaysMap);
             
             setStreakCount(streak);
             setTotalStudyDays(total);
-            setMonthlyProgress(progress);
+            setMonthlyProgress(calculateMonthlyProgress(studyDaysMap));
         } catch (error) {
             console.error("Error fetching activity:", error);
         }
     };
 
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return 'Good morning';
-        if (hour < 17) return 'Good afternoon';
-        return 'Good evening';
+    const renderGreeting = () => {
+        const hours = new Date().getHours();
+        let greeting = "Good morning";
+        
+        if (hours >= 12 && hours < 17) {
+            greeting = "Good afternoon";
+        } else if (hours >= 17) {
+            greeting = "Good evening";
+        }
+
+        return (
+            <View style={styles.greetingContainer}>
+                <Text style={styles.greetingText}>
+                    {greeting}, {props.extraData.fullName.split(' ')[0]} 👋
+                </Text>
+                <Text style={styles.greetingSubtext}>
+                    Ready to plan your study session? Let's make it count!
+                </Text>
+            </View>
+        );
     };
+
+    const recordDailyUsage = async () => {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const todayString = today.toISOString().split('T')[0];
+            
+            // Create or update the usage record for today
+            const usageRef = collection(db, 'appUsage');
+            const q = query(
+                usageRef,
+                where("userID", "==", userID),
+                where("date", "==", todayString)
+            );
+            
+            const querySnapshot = await getDocs(q);
+            
+            if (querySnapshot.empty) {
+                // Create new usage record for today
+                await addDoc(usageRef, {
+                    userID,
+                    date: todayString,
+                    timestamp: new Date().toISOString()
+                });
+            }
+        } catch (error) {
+            console.error("Error recording app usage:", error);
+        }
+    };
+
+    const renderActivityOverview = () => (
+        <View style={styles.activityOverviewContainer}>
+            <View style={styles.summaryHeader}>
+                <View>
+                    <Text style={styles.summaryTitle}>Activity Overview</Text>
+                    <Text style={styles.summarySubtitle}>Your study progress</Text>
+                </View>
+                <TouchableOpacity 
+                    style={styles.viewAllButton}
+                    onPress={() => props.navigation.navigate('Activity')}
+                >
+                    <Text style={styles.viewAllText}>View Details</Text>
+                    <MaterialIcons name="chevron-right" size={16} color="#5b6af5" />
+                </TouchableOpacity>
+            </View>
+            <View style={styles.statsRow}>
+                <View style={[styles.statItem, styles.statItemStreak]}>
+                    <View style={styles.statIconContainer}>
+                        <MaterialIcons name="local-fire-department" size={24} color="#ff6b6b" />
+                    </View>
+                    <Text style={styles.statNumber}>{streakCount}</Text>
+                    <Text style={styles.statLabel}>Day Streak</Text>
+                </View>
+                <View style={[styles.statItem, styles.statItemTotal]}>
+                    <View style={styles.statIconContainer}>
+                        <MaterialIcons name="calendar-today" size={24} color="#4CAF50" />
+                    </View>
+                    <Text style={styles.statNumber}>{totalStudyDays}</Text>
+                    <Text style={styles.statLabel}>Total Days</Text>
+                </View>
+                <View style={[styles.statItem, styles.statItemProgress]}>
+                    <View style={styles.statIconContainer}>
+                        <MaterialIcons name="trending-up" size={24} color="#5b6af5" />
+                    </View>
+                    <Text style={styles.statNumber}>{monthlyProgress}%</Text>
+                    <Text style={styles.statLabel}>Monthly Goal</Text>
+                </View>
+            </View>
+        </View>
+    );
 
     return (
         <View style={styles.container}>
@@ -352,59 +443,49 @@ export default function HomeScreen(props) {
                 style={styles.scrollContainer}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={styles.greetingSection}>
-                    <Text style={styles.greeting}>{getGreeting()}, {props.extraData.fullName.split(' ')[0]}!</Text>
-                    <Text style={styles.greetingSubtext}>Ready to plan your study session?</Text>
-                </View>
+                {renderGreeting()}
 
-                <View style={styles.activityOverviewContainer}>
-                    <View style={styles.summaryHeader}>
-                        <Text style={styles.summaryTitle}>Activity Overview</Text>
-                        <TouchableOpacity 
-                            style={styles.viewAllButton}
-                            onPress={() => props.navigation.navigate('Activity')}
-                        >
-                            <Text style={styles.viewAllText}>View Details</Text>
-                            <MaterialIcons name="chevron-right" size={16} color="#5b6af5" />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.statsRow}>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>{streakCount}</Text>
-                            <Text style={styles.statLabel}>Day Streak</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>{totalStudyDays}</Text>
-                            <Text style={styles.statLabel}>Total Study Days</Text>
-                        </View>
-                        <View style={styles.statItem}>
-                            <Text style={styles.statNumber}>{monthlyProgress}%</Text>
-                            <Text style={styles.statLabel}>Monthly Goal</Text>
-                        </View>
-                    </View>
-                </View>
+                {renderActivityOverview()}
 
                 <View style={styles.inputContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="What do you need to study?"
-                        value={reminderText}
-                        onChangeText={setReminderText}
-                        placeholderTextColor="#aaaaaa"
-                        multiline={true}
-                        numberOfLines={2}
-                    />
+                    <View style={styles.inputWrapper}>
+                        <MaterialIcons 
+                            name="edit" 
+                            size={24} 
+                            color="#5b6af5" 
+                            style={styles.inputIcon}
+                        />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="What do you need to study?"
+                            value={reminderText}
+                            onChangeText={setReminderText}
+                            placeholderTextColor="#aaaaaa"
+                            multiline={true}
+                        />
+                    </View>
                     
                     <TouchableOpacity 
                         style={styles.datePickerButton} 
                         onPress={() => setDatePickerVisible(true)}
                     >
+                        <MaterialIcons 
+                            name="schedule" 
+                            size={24} 
+                            color="#5b6af5" 
+                            style={styles.datePickerIcon}
+                        />
                         <View style={styles.datePickerContent}>
                             <Text style={styles.datePickerLabel}>Scheduled for</Text>
                             <Text style={styles.datePickerButtonText}>
                                 {formatDateTime(selectedDate)}
                             </Text>
                         </View>
+                        <MaterialIcons 
+                            name="chevron-right" 
+                            size={24} 
+                            color="#666"
+                        />
                     </TouchableOpacity>
 
                     <Modal
