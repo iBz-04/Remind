@@ -21,7 +21,7 @@ const db = getFirestore();
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
-  registerNNPushToken(27237, 'hYhe8GfMPTwaZ3Edt31CkB');
+  registerNNPushToken(27241, 'AkybmfS0qrYswwFB2G1ut2');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

@@ -67,13 +67,11 @@ export default function RemindersScreen(props) {
                 completedAt: new Date().toISOString()
             });
             
-            // Trigger a refresh of the activity data in other screens
-            if (props.navigation) {
-                // Navigate to Activity screen to refresh the streak
-                props.navigation.navigate('Activity', { refresh: Date.now() });
-                // Navigate back to Reminders
-                props.navigation.navigate('Reminders');
-            }
+            // Removed navigation refresh logic since onSnapshot handles updates.
+            // if (props.navigation) {
+            //     props.navigation.navigate('Activity', { refresh: Date.now() });
+            //     props.navigation.navigate('Reminders');
+            // }
         } catch (error) {
             console.error('Error completing reminder:', error);
             alert('Failed to mark reminder as completed');

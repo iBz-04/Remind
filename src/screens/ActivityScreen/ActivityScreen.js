@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../firebase/config';
 import styles from './styles';
+import sarcasticMotivations from '../../data/sarcasticMotivations';
 
 export default function ActivityScreen(props) {
     const [isSidebarOpen, setSidebarOpen] = React.useState(false);
@@ -130,16 +131,11 @@ export default function ActivityScreen(props) {
     };
 
     const renderMotivationalMessage = () => {
-        let message = "";
-        if (streakCount > 7) {
-            message = "Amazing streak! Keep the momentum going! 🔥";
-        } else if (streakCount > 3) {
-            message = "You're building a great habit! 💪";
-        } else if (streakCount > 0) {
-            message = "Great start! Keep it up! ⭐";
-        } else {
-            message = "Start your study streak today! 📚";
-        }
+        // Use today's day of the month to select a message
+        const today = new Date().getDate(); // 1 to 31
+        const index = today % sarcasticMotivations.length;
+        const message = sarcasticMotivations[index];
+
         return (
             <View style={styles.motivationalContainer}>
                 <Text style={styles.motivationalText}>{message}</Text>

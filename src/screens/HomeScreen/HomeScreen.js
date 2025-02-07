@@ -196,15 +196,17 @@ export default function HomeScreen(props) {
                     <TouchableOpacity 
                         style={[
                             styles.importanceButton,
-                            importance === 1 && styles.importanceButtonActive,
-                            { backgroundColor: importance === 1 ? '#ffe5e5' : '#fff' }
+                            importance === 3 && styles.importanceButtonActive,
+                            { backgroundColor: importance === 3 ? '#ffe5e5' : '#fff' }
                         ]}
-                        onPress={() => setImportance(1)}
+                        onPress={() => setImportance(3)}
                     >
                         <Text style={[
                             styles.importanceButtonText,
-                            importance === 1 && { color: '#ff6b6b' }
-                        ]}>High</Text>
+                            importance === 3 && { color: '#ff6b6b' }
+                        ]}>
+                            High
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style={[
@@ -217,20 +219,24 @@ export default function HomeScreen(props) {
                         <Text style={[
                             styles.importanceButtonText,
                             importance === 2 && { color: '#5b6af5' }
-                        ]}>Medium</Text>
+                        ]}>
+                            Medium
+                        </Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                         style={[
                             styles.importanceButton,
-                            importance === 3 && styles.importanceButtonActive,
-                            { backgroundColor: importance === 3 ? '#e8f5e9' : '#fff' }
+                            importance === 1 && styles.importanceButtonActive,
+                            { backgroundColor: importance === 1 ? '#e8f5e9' : '#fff' }
                         ]}
-                        onPress={() => setImportance(3)}
+                        onPress={() => setImportance(1)}
                     >
                         <Text style={[
                             styles.importanceButtonText,
-                            importance === 3 && { color: '#4CAF50' }
-                        ]}>Low</Text>
+                            importance === 1 && { color: '#4CAF50' }
+                        ]}>
+                            Low
+                        </Text>
                     </TouchableOpacity>
                 </View>
             </View>

@@ -222,17 +222,17 @@ export default StyleSheet.create({
         fontWeight: '500',
     },
     motivationalContainer: {
-        backgroundColor: '#f0f3ff',
-        borderRadius: 12,
         padding: 16,
-        marginBottom: 20,
-        borderLeftWidth: 4,
-        borderLeftColor: '#5b6af5',
+        marginVertical: 12,
+        backgroundColor: '#f0f4ff',
+        borderRadius: 8,
+        alignItems: 'center',
     },
     motivationalText: {
         fontSize: 16,
-        color: '#5b6af5',
         fontWeight: '600',
+        color: '#5b6af5',
+        textAlign: 'center',
     },
     // Calendar Styles
     calendarContainer: {
