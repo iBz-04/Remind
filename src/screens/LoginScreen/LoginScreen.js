@@ -1,25 +1,27 @@
 import React, { useState } from 'react';
-import { Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles';
 import { auth, db } from '../../firebase/config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import LoadingModal from '../../utils/LoadingModal';  
+import { MaterialIcons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native';
 
 export default function LoginScreen({navigation}) {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const onFooterLinkPress = () => {
         navigation.navigate('Registration');
     }
 
     const onLoginPress = async () => {
-        setIsLoading(true);
         try {
+            setIsLoading(true);
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const uid = userCredential.user.uid;
             
@@ -42,46 +44,78 @@ export default function LoginScreen({navigation}) {
     return (
         <View style={styles.container}>
             <KeyboardAwareScrollView
-                style={{ flex: 1, width: '100%' }}
-                keyboardShouldPersistTaps="always">
-                {/* App logo */}
-                <Image
-                    style={styles.logo}
-                    source={require('../../../assets/icon.png')}
-                />
-                {/* Email input field */}
-                <TextInput
-                    style={styles.input}
-                    placeholder='E-mail'
-                    placeholderTextColor="#aaaaaa"
-                    onChangeText={(text) => setEmail(text)}
-                    value={email}
-                    underlineColorAndroid="transparent"
-                    autoCapitalize="none"
-                />
-                {/* Password input field */}
-                <TextInput
-                    style={styles.input}
-                    placeholderTextColor="#aaaaaa"
-                    secureTextEntry
-                    placeholder='Password'
-                    onChangeText={(text) => setPassword(text)}
-                    value={password}
-                    underlineColorAndroid="transparent"
-                    autoCapitalize="none"
-                />
-                {/* Login button */}
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={onLoginPress}>
-                    <Text style={styles.buttonTitle}>Log in</Text>
-                </TouchableOpacity>
-                {/* Footer link to navigate to the registration screen */}
-                <View style={styles.footerView}>
-                    <Text style={styles.footerText}>Don't have an account? <Text onPress={onFooterLinkPress} style={styles.footerLink}>Sign up</Text></Text>
+                style={styles.scrollContainer}
+                contentContainerStyle={{flexGrow: 1}}
+                keyboardShouldPersistTaps="always"
+                bounces={false}
+                overScrollMode="never">
+                <SafeAreaView style={styles.headerContainer}>
+                    <Image
+                        style={styles.logo}
+                        source={require('../../../assets/icon.png')}
+                    />
+                    <Text style={styles.welcomeText}>Welcome Back!</Text>
+                    <Text style={styles.subtitleText}>Sign in to continue your study journey</Text>
+                </SafeAreaView>
+
+                <View style={styles.formContainer}>
+                    <View style={styles.inputContainer}>
+                        <MaterialIcons name="email" size={20} color="#666" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder='Email'
+                            placeholderTextColor="#aaaaaa"
+                            onChangeText={setEmail}
+                            value={email}
+                            underlineColorAndroid="transparent"
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                        />
+                    </View>
+
+                    <View style={styles.inputContainer}>
+                        <MaterialIcons name="lock" size={20} color="#666" style={styles.inputIcon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholderTextColor="#aaaaaa"
+                            secureTextEntry={!showPassword}
+                            placeholder='Password'
+                            onChangeText={setPassword}
+                            value={password}
+                            underlineColorAndroid="transparent"
+                            autoCapitalize="none"
+                        />
+                        <TouchableOpacity 
+                            onPress={() => setShowPassword(!showPassword)}
+                            style={styles.passwordIcon}
+                        >
+                            <MaterialIcons 
+                                name={showPassword ? "visibility" : "visibility-off"} 
+                                size={20} 
+                                color="#666" 
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                    <TouchableOpacity
+                        style={[styles.button, isLoading && styles.buttonDisabled]}
+                        onPress={onLoginPress}
+                        disabled={isLoading}>
+                        {isLoading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonTitle}>Log in</Text>
+                        )}
+                    </TouchableOpacity>
+
+                    <View style={styles.footerView}>
+                        <Text style={styles.footerText}>Don't have an account? </Text>
+                        <TouchableOpacity onPress={onFooterLinkPress}>
+                            <Text style={styles.footerLink}>Sign up</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </KeyboardAwareScrollView>
-            <LoadingModal isVisible={isLoading} />
         </View>
     );
 }

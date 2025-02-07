@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import Constants from 'expo-constants';
 
 export default StyleSheet.create({
     container: {
@@ -10,7 +11,7 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
-        paddingTop: 60,
+        paddingTop: Constants.statusBarHeight,
         backgroundColor: '#fff',
     },
     inputContainer: {

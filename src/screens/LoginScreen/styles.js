@@ -1,58 +1,89 @@
 import { StyleSheet } from 'react-native';
+import Constants from 'expo-constants';
 
 export default StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center'
+        backgroundColor: '#fff',
     },
-    title: {
-
+    scrollContainer: {
+        flex: 1,
+        width: '100%',
+    },
+    headerContainer: {
+        alignItems: 'center',
+        paddingTop: 0,
+        paddingBottom: 40,
     },
     logo: {
-        flex: 1,
+        width: 120,
         height: 120,
-        width: 90,
-        alignSelf: "center",
-        margin: 30
+        marginBottom: 10,
+    },
+    welcomeText: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#1a1a1a',
+        marginBottom: 8,
+    },
+    subtitleText: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        paddingHorizontal: 40,
+    },
+    formContainer: {
+        paddingHorizontal: 30,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+        borderRadius: 12,
+        marginBottom: 16,
+        paddingHorizontal: 16,
+        height: 56,
+    },
+    inputIcon: {
+        marginRight: 12,
     },
     input: {
-        height: 48,
-        borderRadius: 5,
-        overflow: 'hidden',
-        backgroundColor: 'white',
-        marginTop: 10,
-        marginBottom: 10,
-        marginLeft: 30,
-        marginRight: 30,
-        paddingLeft: 16
+        flex: 1,
+        fontSize: 16,
+        color: '#1a1a1a',
+    },
+    passwordIcon: {
+        padding: 4,
     },
     button: {
-        backgroundColor: '#788eec',
-        marginLeft: 30,
-        marginRight: 30,
-        marginTop: 20,
-        height: 48,
-        borderRadius: 5,
-        alignItems: "center",
-        justifyContent: 'center'
+        backgroundColor: '#5b6af5',
+        borderRadius: 12,
+        height: 56,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 24,
+    },
+    buttonDisabled: {
+        opacity: 0.7,
     },
     buttonTitle: {
-        color: 'white',
+        color: '#fff',
         fontSize: 16,
-        fontWeight: "bold"
+        fontWeight: '600',
     },
     footerView: {
-        flex: 1,
-        alignItems: "center",
-        marginTop: 20
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 20,
     },
     footerText: {
         fontSize: 16,
-        color: '#2e2e2d'
+        color: '#666',
     },
     footerLink: {
-        color: "#788eec",
-        fontWeight: "bold",
-        fontSize: 16
+        fontSize: 16,
+        color: '#5b6af5',
+        fontWeight: '600',
     }
-})
+});

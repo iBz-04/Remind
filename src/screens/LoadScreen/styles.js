@@ -3,9 +3,30 @@ import { StyleSheet } from 'react-native';
 export default StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#ffffff'
+        justifyContent: 'center',
+        backgroundColor: '#fff',
+    },
+    logoContainer: {
+        alignItems: 'center',
+        marginBottom: 30,
+    },
+    logo: {
+        width: 120,
+        height: 120,
+        marginBottom: 16,
+    },
+    appName: {
+        fontSize: 28,
+        fontWeight: '700',
+        color: '#5b6af5',
+        marginBottom: 40,
+    },
+    loadingText: {
+        marginTop: 20,
+        fontSize: 16,
+        color: '#666',
+        fontWeight: '500',
     },
     loadingContainer: {
         flex: 1,

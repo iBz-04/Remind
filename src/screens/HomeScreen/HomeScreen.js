@@ -29,7 +29,7 @@ export default function HomeScreen(props) {
     const remindersRef = collection(db, 'reminders');
 
     useEffect(() => {
-        setLoading(true);
+        setLoading(true); 
         const q = query(
             remindersRef,
             where("userID", "==", userID),
@@ -85,13 +85,13 @@ export default function HomeScreen(props) {
             return;
         }
 
-        setLoading(true);
-        try {
-            const data = {
+            setLoading(true); 
+            try {
+                const data = {
                 text: reminderText,
                 reminderTime: selectedDate.toISOString(),
                 userID: userID,
-                createdAt: serverTimestamp(),
+                    createdAt: serverTimestamp(),
                 completed: false,
                 importance: importance
             };
@@ -99,11 +99,11 @@ export default function HomeScreen(props) {
             setReminderText('');
             setSelectedDate(new Date());
             setImportance(2);
-        } catch (error) {
-            alert(error.message);
-        } finally {
-            setLoading(false);
-        }
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                setLoading(false); 
+            }
     };
 
     const onLogoutPress = async () => {
@@ -568,7 +568,7 @@ export default function HomeScreen(props) {
                         <Text style={styles.emptySubText}>Add your first study reminder above</Text>
                     </View>
                 ) : (
-                    <View style={styles.listContainer}>
+                <View style={styles.listContainer}>
                         {reminders.map(reminder => (
                             <View key={reminder.id}>
                                 {renderReminder({ item: reminder })}
@@ -636,7 +636,7 @@ export default function HomeScreen(props) {
                 />
             )}
             
-            <LoadingModal isVisible={loading} />
+            <LoadingModal isVisible={loading} /> 
         </View>
     );
 }

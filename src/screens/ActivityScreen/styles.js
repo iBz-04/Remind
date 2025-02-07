@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import Constants from 'expo-constants';
 
 export default StyleSheet.create({
     container: {
@@ -10,7 +11,7 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: 20,
-        paddingTop: 60,
+        paddingTop: Constants.statusBarHeight,
         backgroundColor: '#fff',
     },
     headerLogo: {
@@ -232,5 +233,135 @@ export default StyleSheet.create({
         fontSize: 16,
         color: '#5b6af5',
         fontWeight: '600',
+    },
+    // Calendar Styles
+    calendarContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 16,
+        marginHorizontal: 20,
+        marginTop: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    calendarDay: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 2,
+        borderRadius: 12,
+    },
+    calendarDayText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#333',
+    },
+    // Streak Styles
+    streakDay: {
+        backgroundColor: '#4CAF50',
+        borderRadius: 12,
+        transform: [{ scale: 1 }],
+    },
+    streakDayStart: {
+        backgroundColor: '#4CAF50',
+        borderTopLeftRadius: 12,
+        borderBottomLeftRadius: 12,
+    },
+    streakDayEnd: {
+        backgroundColor: '#4CAF50',
+        borderTopRightRadius: 12,
+        borderBottomRightRadius: 12,
+    },
+    streakDayText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
+    streakConnector: {
+        position: 'absolute',
+        height: 4,
+        backgroundColor: '#4CAF50',
+        opacity: 0.6,
+        top: '50%',
+        transform: [{ translateY: -2 }],
+    },
+    // Hover effect for active days
+    activeDayHover: {
+        transform: [{ scale: 1.1 }],
+    },
+    // Gradient effect for streak days
+    streakGradient: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        borderRadius: 12,
+        opacity: 0.2,
+    },
+    // Stats container
+    statsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        paddingVertical: 16,
+        borderTopWidth: 1,
+        borderTopColor: '#f0f0f0',
+        marginTop: 16,
+    },
+    statItem: {
+        alignItems: 'center',
+    },
+    statNumber: {
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#4CAF50',
+        marginBottom: 4,
+    },
+    statLabel: {
+        fontSize: 12,
+        color: '#666',
+        fontWeight: '500',
+    },
+    // Today's highlight
+    todayCell: {
+        borderWidth: 2,
+        borderColor: '#5b6af5',
+        backgroundColor: '#fff',
+    },
+    todayText: {
+        color: '#5b6af5',
+        fontWeight: '700',
+    },
+    // Inactive days
+    inactiveDay: {
+        opacity: 0.4,
+    },
+    // Month header
+    monthHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16,
+        paddingHorizontal: 8,
+    },
+    monthText: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#333',
+    },
+    weekDayHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginBottom: 8,
+    },
+    weekDayText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#666',
+        width: 40,
+        textAlign: 'center',
     },
 }); 

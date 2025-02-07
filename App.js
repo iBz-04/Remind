@@ -8,6 +8,7 @@ import { LoginScreen, HomeScreen, RegistrationScreen } from './src/screens';
 import LoadScreen from './src/screens/LoadScreen/LoadScreen';
 import ActivityScreen from './src/screens/ActivityScreen/ActivityScreen';
 import RemindersScreen from './src/screens/RemindersScreen/RemindersScreen';
+import registerNNPushToken from 'native-notify';
 
 import { decode, encode } from 'base-64';
 if (!global.btoa) { global.btoa = encode }
@@ -20,6 +21,7 @@ const db = getFirestore();
 export default function App() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  registerNNPushToken(27237, 'hYhe8GfMPTwaZ3Edt31CkB');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {

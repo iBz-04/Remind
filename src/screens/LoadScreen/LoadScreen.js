@@ -1,15 +1,19 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View, Image, Text, ActivityIndicator } from 'react-native';
 import styles from './styles';
 
-const LoadScreen = () => {
+export default function LoadScreen() {
     return (
-        <View style={styles.loadingContainer}>
-            <View style={styles.loadingBox}>
-                <ActivityIndicator size="large" color="#0000ff" />
+        <View style={styles.container}>
+            <View style={styles.logoContainer}>
+                <Image
+                    style={styles.logo}
+                    source={require('../../../assets/icon.png')}
+                />
+                <Text style={styles.appName}>StudyTracker</Text>
             </View>
+            <ActivityIndicator size="large" color="#5b6af5" />
+            <Text style={styles.loadingText}>Loading your study space...</Text>
         </View>
     );
-};
-
-export default LoadScreen;
+}

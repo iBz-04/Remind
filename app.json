@@ -25,6 +25,12 @@
       "supportsTablet": true
     },
     "description": "Built by the team behind https://www.instamobile.io https://www.iosapptemplates.com https://www.instaflutter.com and https://www.instakotlin.com",
-    "githubUrl": "https://github.com/instamobile/react-native-firebase"
+    "githubUrl": "https://github.com/instamobile/react-native-firebase",
+    "extra": {
+      "eas": {
+        "projectId": "f2ddb29d-b5ae-4002-ad45-90b28e94a666"
+      }
+    },
+    "owner": "ibz_04"
   }
 }
