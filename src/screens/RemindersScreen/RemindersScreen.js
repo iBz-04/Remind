@@ -34,8 +34,8 @@ export default function RemindersScreen(props) {
         const q = query(
             remindersRef,
             where("userID", "==", userID),
-            orderBy('completed', 'asc'),  // Sort by completion status first
-            orderBy('reminderTime', 'asc') // Then by time
+            orderBy('completed', 'asc'),  
+            orderBy('reminderTime', 'asc') 
         );
 
         const unsubscribe = onSnapshot(q,

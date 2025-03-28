@@ -315,14 +315,14 @@ export default function HomeScreen(props) {
             
             querySnapshot.forEach(doc => {
                 const reminder = doc.data();
-                if (reminder.completed && reminder.completedAt) {  // Only count completed reminders with completedAt
+                if (reminder.completed && reminder.completedAt) {  
                     const completionDate = new Date(reminder.completedAt);
                     const dateString = completionDate.toISOString().split('T')[0];
                     studyDaysMap[dateString] = true;
                 }
             });
             
-            // Mark today since user is using the app
+            
             const today = new Date();
             const todayString = today.toISOString().split('T')[0];
             studyDaysMap[todayString] = true;
@@ -366,7 +366,7 @@ export default function HomeScreen(props) {
             today.setHours(0, 0, 0, 0);
             const todayString = today.toISOString().split('T')[0];
             
-            // Create or update the usage record for today
+           
             const usageRef = collection(db, 'appUsage');
             const q = query(
                 usageRef,
@@ -377,7 +377,7 @@ export default function HomeScreen(props) {
             const querySnapshot = await getDocs(q);
             
             if (querySnapshot.empty) {
-                // Create new usage record for today
+               
                 await addDoc(usageRef, {
                     userID,
                     date: todayString,
